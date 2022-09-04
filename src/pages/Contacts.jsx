@@ -1,15 +1,21 @@
 import { useSelector, useDispatch } from 'react-redux';
 
-import { fetchContacts, addContact as addContactAction, removeContact, updateFilter } from '../redux/contactsSlice';
+import {
+  fetchContacts,
+  addContact as addContactAction,
+  removeContact,
+  updateFilter,
+} from '../redux/contactsSlice';
 import { ContactForm } from '../components/ContactForm/ContactForm';
 import { Filter } from '../components/Filter/Filter';
 import { ContactList } from '../components/ContactList/ContactList';
+import contactsFilter from 'helpers/contactsFilter';
 import css from './Contacts.module.css';
 import { useEffect } from 'react';
 
 const Contacts = () => {
-  const contacts = useSelector((state) => state.contacts.items || []);
-  const filter = useSelector((state) => state.contacts.filter || '');
+  const contacts = useSelector(state => state.contacts.items || []);
+  const filter = useSelector(state => state.contacts.filter || '');
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -21,20 +27,13 @@ const Contacts = () => {
   };
 
   const addContact = (name, number) => {
-    dispatch(addContactAction({name, number}))
+    dispatch(addContactAction({ name, number }));
   };
 
   const deleteContact = contactId => {
-    dispatch(removeContact(contactId))
+    dispatch(removeContact(contactId));
   };
-
-  const searchContact = filter.toLowerCase();
-  const filteredContacts = contacts
-    .filter(contact => contact.name.toLowerCase().includes(searchContact))
-    .sort((firstContact, secondContact) =>
-      firstContact.name.localeCompare(secondContact.name)
-    );
-
+  const filteredContacts = contactsFilter(contacts, filter);
   return (
     <div className={css.thumb}>
       <h1>Phonebook</h1>

@@ -3,30 +3,37 @@ import { BASE_URL } from '../../constants';
 
 export const fetchContacts = createAsyncThunk(
   'contacts/fetchContacts',
-  async (payload, {getState}) => {
-    const {auth} = getState();
+  async (payload, { getState }) => {
+    const { auth } = getState();
     const response = await fetch(`${BASE_URL}/contacts`, {
       method: 'get',
       headers: {
-        Authorization: auth.token
-      }
-    })
+        Authorization: auth.token,
+      },
+    });
     const data = await response.json();
-    return data
+    return data;
   }
 );
 
 export const addContact = createAsyncThunk(
   'contacts/addContact',
-  async (payload, {dispatch, getState}) => {
-    const {auth} = getState();
+  async (payload, { dispatch, getState, rejectWithValue }) => {
+    const isInclude = getState().contacts.items.find(
+      contact => contact.name.toLowerCase() === payload.name.toLowerCase()
+    );
+    if (isInclude) {
+      alert(`${payload.name} is already in contacts.`);
+      return rejectWithValue(`${payload.name} is already in contacts.`);
+    }
+    const { auth } = getState();
     await fetch(`${BASE_URL}/contacts`, {
       method: 'post',
       headers: {
         'content-type': 'application/json',
-        Authorization: auth.token
+        Authorization: auth.token,
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
 
     dispatch(fetchContacts());
@@ -35,12 +42,12 @@ export const addContact = createAsyncThunk(
 
 export const removeContact = createAsyncThunk(
   'contacts/removeContact',
-  async (id, {dispatch, getState}) => {
-    const {auth} = getState();
+  async (id, { dispatch, getState }) => {
+    const { auth } = getState();
     await fetch(`${BASE_URL}/contacts/${id}`, {
       method: 'delete',
       headers: {
-        Authorization: auth.token
+        Authorization: auth.token,
       },
     });
 
